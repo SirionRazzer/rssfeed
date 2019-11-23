@@ -11,14 +11,23 @@ fun main(args: Array<String>) = runBlocking {
     val client = OkHttpClient.Builder()
         .build()
 
+    // ATOM: https://www.cnews.cz/feed/
+    // https://www.root.cz/rss/zpravicky/
+    // https://diit.cz/rss.xml
     val syndicationReader = Syndication(
-        url = "https://www.root.cz/rss/zpravicky/",
+        url = "https://diit.cz/rss.xml",
         callFactory = CoroutineCallAdapterFactory(),
         httpClient = client
     )
 
     val reader = syndicationReader.create(RssReader::class.java)
-    println(reader.readRss().await().channel.items?.first()?.title)
+    val items = reader.readRss().await().channel.items
+    val titles = mutableListOf<String>()
+    items?.forEach { item ->
+        item.title?.let { titles.add(it) }
+    }
+
+    println(titles)
 }
 
 interface RssReader {
